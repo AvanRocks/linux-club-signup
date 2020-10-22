@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const port = process.env.PORT || 8000
 
 const { Client } = require('pg')
