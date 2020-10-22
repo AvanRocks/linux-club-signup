@@ -7,6 +7,9 @@ const { Client } = require('pg')
 
 const client = new Client({
 	connectionString: process.env.DATABASE_URL + '?sslmode=require'
+	ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 client.connect(err => {
@@ -32,6 +35,7 @@ app.post('/new-signup', (req, res) => {
 	let email = req.body.email;
 	client.query('INSERT INTO info (name, email) VALUES ($1, $2);', [name, email], (err, res) => {
 		if (err) {
+			console.log('Error in database')
 			console.log(err.stack)
 		} else {
 			console.log('successful signup')
