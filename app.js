@@ -1,11 +1,18 @@
 const express = require('express')
 const app = express()
+const { Client } = require('pg')
+
+if(process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https')
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    else
+      next()
+  })
+}
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 const port = process.env.PORT || 8000
-
-const { Client } = require('pg')
 
 const client = new Client({
 	connectionString: process.env.DATABASE_URL + '?sslmode=require',
@@ -21,8 +28,6 @@ client.connect(err => {
     console.log('Connected')
   }
 })
-
-console.log(process.env.NODE_ENV)
 
 app.use(express.static('public'));
 
