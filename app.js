@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+//process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const port = process.env.PORT || 8000
 
@@ -22,6 +22,8 @@ client.connect(err => {
   }
 })
 
+app.use(express.static('public'));
+
 app.get('/', (req, res) => {
   res.redirect('/new-signup')
 })
@@ -33,9 +35,13 @@ app.get('/new-signup', (req, res) => {
 app.use('/new-signup', express.urlencoded())
 
 app.post('/new-signup', (req, res) => {
-	let name = req.body.name;
-	let email = req.body.email;
-	client.query('INSERT INTO info (name, email) VALUES ($1, $2);', [name, email], (err, res) => {
+	const { name, email, used, experience, distro, otherDistro, available } = req.body;
+
+	otherDistro2=""
+	if (distro == "other") 
+		otherDistro2=otherDistroa
+
+	client.query('INSERT INTO signups (name,email,used,experience,distro,otherDistro,available) VALUES ($1,$2,$3,$4,$5,$6,$7);', [name,email,used,experience,distro,otherDistro2,available], (err, res) => {
 		if (err) {
 			console.log('Error in database')
 			console.log(err.stack)
@@ -43,6 +49,8 @@ app.post('/new-signup', (req, res) => {
 			console.log('successful signup')
 		}
 	})
+
+	console.log(req.body);
 
 	res.redirect('/success');
 })
