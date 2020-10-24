@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const { Client } = require('pg')
 
+// https redirect
 if(process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.header('x-forwarded-proto') !== 'https')
@@ -11,9 +12,12 @@ if(process.env.NODE_ENV === 'production') {
   })
 }
 
+// allows node to connect to heroku postgres database with ssl (they have a self-signed certificate that we have to accept)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const port = process.env.PORT || 8000
 
+// config for connecting to database
 const client = new Client({
 	connectionString: process.env.DATABASE_URL + '?sslmode=require',
 	ssl: {
@@ -21,6 +25,7 @@ const client = new Client({
   }
 });
 
+// connect to database
 client.connect(err => {
 	if (err) {
     console.error('Connection error', err.stack)
@@ -41,9 +46,11 @@ app.get('/new-signup', (req, res) => {
 
 app.use('/new-signup', express.urlencoded())
 
+// when a user submits the form, save the data to database
 app.post('/new-signup', (req, res) => {
 	const { name, email, used, experience, distro, otherDistro, available } = req.body;
 
+	// only use text from 'otherDistro' if 'other' was selected for distro 
 	otherDistro2=""
 	if (distro == "other") 
 		otherDistro2=otherDistroa
