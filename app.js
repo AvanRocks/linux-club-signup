@@ -22,6 +22,8 @@ client.connect(err => {
   }
 })
 
+console.log(process.env.NODE_ENV)
+
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
