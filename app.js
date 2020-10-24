@@ -50,8 +50,6 @@ app.post('/new-signup', (req, res) => {
 		}
 	})
 
-	console.log(req.body);
-
 	res.redirect('/success');
 })
 
