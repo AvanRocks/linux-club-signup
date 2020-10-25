@@ -54,22 +54,22 @@ app.post('/new-signup', (req, res) => {
 	const { name, email, used, experience, distro, otherDistro, available } = req.body;
 
 	// only use text from 'otherDistro' if 'other' was selected for distro 
-	otherDistro2=""
+	otherDistro2="n/a"
 	if (distro == "other") 
 		otherDistro2=otherDistro
 
 	let info = [name, email, used, experience, distro, otherDistro2, available];
 
-	// if form is empty, refresh page
-	let empty = true;
+	// if form is not ful, refresh page
+	let full = true;
 	for (let i=0; i<info.length; i++) {
-		if (info[i]) {
-			empty = false;
+		if (!info[i]) {
+			full = false;
 			break;
 		}
 	}
 
-	if (empty) {
+	if (!full) {
 		res.redirect('/new-signup');
 	} else {
 		client.query('INSERT INTO signups (name,email,used,experience,distro,otherDistro,available) VALUES ($1,$2,$3,$4,$5,$6,$7);', info, (err, res) => {
