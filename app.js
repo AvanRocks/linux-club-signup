@@ -64,17 +64,23 @@ app.post('/new-signup', (req, res) => {
 		if (err) {
 			console.log('Error in database')
 			console.log(err.stack)
+			res.redirect('/error');
 		} else {
+			res.redirect('/success');
 			//console.log('successful signup')
 		}
 	})
 
-	res.redirect('/success');
+
 })
 
 app.get('/success', (req, res) => {
 	res.sendFile( __dirname + '/success.html')
 })
+
+app.get('/error', (req, res) => {
+	res.sendStatus(500);
+});
 
 app.listen(port, () => {
   console.log(`Listening on port ${port} ...`)
