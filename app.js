@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const { Client } = require('pg')
+const port = process.env.PORT || 8000
 
 // https redirect
 if(process.env.NODE_ENV === 'production') {
@@ -12,18 +13,19 @@ if(process.env.NODE_ENV === 'production') {
   })
 }
 
-// allows node to connect to heroku postgres database with ssl (they have a self-signed certificate that we have to accept)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// make sure production uses ssl (or else it crashes), in case I forget to uncomment it after disabling it for local use
+if (process.env.NODE_ENV === 'production') {
+	// allows node to connect to heroku postgres database with ssl (they have a self-signed certificate that we have to accept)
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const port = process.env.PORT || 8000
-
-// config for connecting to database
-const client = new Client({
-	connectionString: process.env.DATABASE_URL + '?sslmode=require',
-	ssl: {
-    rejectUnauthorized: false
-  }
-});
+	// config for connecting to database
+	const client = new Client({
+		connectionString: process.env.DATABASE_URL + '?sslmode=require',
+		ssl: {
+			rejectUnauthorized: false
+		}
+	});
+}
 
 // connect to database
 client.connect(err => {
@@ -53,18 +55,33 @@ app.post('/new-signup', (req, res) => {
 	// only use text from 'otherDistro' if 'other' was selected for distro 
 	otherDistro2=""
 	if (distro == "other") 
-		otherDistro2=otherDistroa
+		otherDistro2=otherDistro
 
-	client.query('INSERT INTO signups (name,email,used,experience,distro,otherDistro,available) VALUES ($1,$2,$3,$4,$5,$6,$7);', [name,email,used,experience,distro,otherDistro2,available], (err, res) => {
-		if (err) {
-			console.log('Error in database')
-			console.log(err.stack)
-		} else {
-			console.log('successful signup')
+	let info = [name, email, used, experience, distro, otherDistro2, available];
+
+	// if form is empty, refresh page
+	let empty = true;
+	for (let i=0; i<info.length; i++) {
+		if (info[i]) {
+			empty = false;
+			break;
 		}
-	})
+	}
 
-	res.redirect('/success');
+	if (empty) {
+		res.redirect('/new-signup');
+	} else {
+		client.query('INSERT INTO signups (name,email,used,experience,distro,otherDistro,available) VALUES ($1,$2,$3,$4,$5,$6,$7);', info, (err, res) => {
+			if (err) {
+				console.log('Error in database')
+				console.log(err.stack)
+			} else {
+				//console.log('successful signup')
+			}
+		})
+
+		res.redirect('/success');
+	}
 })
 
 app.get('/success', (req, res) => {
