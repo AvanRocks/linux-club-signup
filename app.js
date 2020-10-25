@@ -14,12 +14,13 @@ if(process.env.NODE_ENV === 'production') {
 }
 
 // make sure production uses ssl (or else it crashes), in case I forget to uncomment it after disabling it for local use
+let client;
 if (process.env.NODE_ENV === 'production') {
 	// allows node to connect to heroku postgres database with ssl (they have a self-signed certificate that we have to accept)
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 	// config for connecting to database
-	const client = new Client({
+	client = new Client({
 		connectionString: process.env.DATABASE_URL + '?sslmode=require',
 		ssl: {
 			rejectUnauthorized: false
