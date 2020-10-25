@@ -28,6 +28,10 @@ if (process.env.NODE_ENV === 'production') {
 	});
 }
 
+	client = new Client({
+		connectionString: process.env.DATABASE_URL
+	})
+
 // connect to database
 client.connect(err => {
 	if (err) {
@@ -71,7 +75,6 @@ app.post('/new-signup', (req, res) => {
 		}
 	})
 
-
 })
 
 app.get('/success', (req, res) => {
@@ -79,7 +82,8 @@ app.get('/success', (req, res) => {
 })
 
 app.get('/error', (req, res) => {
-	res.sendStatus(500);
+	res.status(500);
+	res.sendFile( __dirname + '/error.html')
 });
 
 app.listen(port, () => {
